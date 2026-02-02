@@ -7,14 +7,14 @@ if (formEl) {
     let userLastNameInput = ev.target.elements.lastName.value;
 
     if (userFirstNameInput && userLastNameInput) {
-      if (isNaN(userFirstNameInput) && isNaN(userLastNameInput)) {
+      if (/[0-9]/.test(userFirstNameInput) || /[0-9]/.test(userFirstNameInput)) {
+        alert('Wprowadzono niedozwolone znaki!')
+      } else {
         userFirstNameInput = fromCapitalLetter(userFirstNameInput);
         userLastNameInput = fromCapitalLetter(userLastNameInput);
         appendUl(userFirstNameInput, userLastNameInput);
         ev.target.elements.firstName.value = "";
         ev.target.elements.lastName.value = "";
-      } else {
-        alert('Wprowadzono niedozwolone znaki!')
       }
     } else {
       alert('Najpierw prowadź dane do formularza. Wszystkie pola muszą być wypełnione!')
