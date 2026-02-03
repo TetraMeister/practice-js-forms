@@ -1,174 +1,66 @@
-const form = document.forms[0];
-const formElsArr = Array.from(form.elements);
-form.setAttribute('novalidate', '');
-const [nameInput, lastNameInput, streetInput, houseInput, flatInput, zipInput, cityInput, voivodeshipInput, submit] = formElsArr;
-let errors = [];
-const messagesEl = document.querySelector('.messages');
+document.addEventListener('DOMContentLoaded', init);
 
 
-form.addEventListener('submit', function (ev) {
-  ev.preventDefault();
-  resetErrors(messagesEl);
-  validateForm(messagesEl);
-});
+function init() {
+  const formEl = document.querySelector('form');
+  const ulEl = document.querySelector('.messages');
 
-function nameValidator(element) {
-  const regEx = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]+$/
+  if (formEl) {
+    formEl.addEventListener('submit', handleSubmit);
+  }
 
-  if (!element.value) {
-    errors.push(`Wypełnij pole ${getInputName(formElsArr.indexOf(element))}!`);
-    return false;
-  } else {
-    if (element.value[0] !== element.value[0].toUpperCase()) {
-      errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} powinno rozpoczynać się od wielkiej litery!`);
-      return false;
-    } else {
-      if (element.value.length <= 1) {
-        errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} powinno zawierać więcej niż 1 literę!`)
-        return false;
-      } else {
-        if (regEx.test(element.value)) {
-          return true;
-        } else {
-          errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} zawiera niedozwolone znaki!`)
-          return false;
+  function handleSubmit(ev) {
+    ev.preventDefault();
+
+    const errors = [];
+
+    const fields = [
+      { name: 'firstName', label: 'Imię', required: true },
+      { name: 'lastName', label: 'Nazwisko', required: true },
+      { name: 'street', label: 'Ulica', required: true },
+      { name: 'houseNumber', label: 'Numer budynku', type: 'number', required: true, },
+      { name: 'flatNumber', label: 'Numer mieszkania', type: 'number' },
+      { name: 'zip', label: 'Kod pocztowy', pattern: '^[0-9]{2}-[0-9]{3}$', required: true, },
+      { name: 'city', label: 'Miasto', required: true },
+      { name: 'voivodeship', label: 'Województwo', required: true }
+    ];
+
+    fields.forEach(function (field) {
+      const value = formEl.elements[field.name].value;
+
+      if (field.required) {
+        if (value.length === 0) {
+          errors.push(`Dane w polu ${field.label} są wymagane!`)
         }
-      }
-    }
-  }
-};
+      };
 
-function validateStreetName(element) {
-  const regEx = /^[a-zA-Z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż'.]+( [a-zA-Z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż']+)?$/
-
-  if (element.value) {
-    if (isNaN(element.value[0])) {
-      if (element.value[0] !== element.value[0].toUpperCase()) {
-        errors.push(`Wartość w polu ${getInputName(formElsArr.indexOf(element))} nie może rozpoczynać się od małej litery!`);
-        return false;
-      } else {
-        if (regEx.test(element.value) && element.value[0] !== "'" && element.value[0] !== ".") {
-          return true;
-        } else {
-          errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} zawiera niedozwolone znaki!`);
-          return false;
+      if (field.type === 'number') {
+        if (Number.isNaN(Number(value))) {
+          errors.push(`Dane w polu ${field.label} muszą być liczbą!`)
         }
-      }
-    } else {
-      errors.push(`Wartość w polu ${getInputName(formElsArr.indexOf(element))} nie może rozpoczynać się od cyfry!`)
-      return false;
-    }
-  } else {
-    errors.push(`Wypełnij pole ${getInputName(formElsArr.indexOf(element))}!`)
-    return false;
-  };
-}
+      };
 
-function validateFlatAndBuilding(element) {
-  if (element.value) {
-    if (!isNaN(element.value)) {
-      if (element.value <= 0 || element.value >= 10000) {
-        errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} nie może zawierać wartości mniejszej lub równej zeru oraz większej niż 10000!`)
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} nie może zawierać wartości nie będącej liczbą!`)
-      return false;
-    }
-  } else {
-    errors.push(`Wypełnij pole ${getInputName(formElsArr.indexOf(element))}!`)
-    return false;
-  }
-}
-
-function validateZip(element) {
-  const regEx = /^[0-9]{2}-[0-9]{3}$/
-
-  element.removeAttribute('pattern');
-
-  if (element.value) {
-    if (regEx.test(element.value)) {
-      return true;
-    } else {
-      errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} zawiera niepoprawny format!`)
-      return false;
-    }
-  } else {
-    errors.push(`Wypełnij pole ${getInputName(formElsArr.indexOf(element))}!`)
-    return false;
-  }
-};
-
-function validateCityName(element) {
-  const regEx = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż ]+$/
-
-  if (element.value) {
-    if (element.value[0] === " " || element.value[0] !== element.value[0].toUpperCase()) {
-      errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} musi rozpoczynać się wielką literą!`)
-      return false;
-    } else {
-      if (regEx.test(element.value)) {
-        return true;
-      } else {
-        errors.push(`Pole ${getInputName(formElsArr.indexOf(element))} zawiera niedozwolone znaki!`)
-        return false;
-      }
-    }
-  } else {
-    errors.push(`Wypełnij pole ${getInputName(formElsArr.indexOf(element))}!`)
-    return false;
-  }
-};
-
-function validateVoivodeship(element) {
-  if (!element.value || element.value === "") {
-    errors.push(`Wybierz opcję w polu ${getInputName(formElsArr.indexOf(element)).slice(0, 11)}!`)
-    return false;
-  } else {
-    return true;
-  }
-};
-
-function validateForm(ulEl) {
-
-  nameValidator(nameInput);
-  nameValidator(lastNameInput);
-  validateStreetName(streetInput);
-  validateFlatAndBuilding(houseInput);
-  validateFlatAndBuilding(flatInput);
-  validateZip(zipInput);
-  validateCityName(cityInput);
-  validateVoivodeship(voivodeshipInput);
-
-  if (errors.length !== 0) {
-    errors.forEach(function (e) {
-      const newLi = document.createElement('li');
-      newLi.textContent = e;
-      ulEl.appendChild(newLi);
+      if (field.pattern) {
+        const regEx = new RegExp(field.pattern);
+        if (!regEx.test(value)) {
+          errors.push(`Dane w polu ${field.label} zawierają niedozwolone znaki lub nie są zgodne z wymaganym formatem!`)
+        }
+      };
     });
-  } else {
-    alert('Formularz wysłany!')
-  }
-};
 
-function getInputName(index) {
-  const string = String(formElsArr[index].parentElement.textContent).replaceAll('\n', '').replaceAll(' ', '');
+    ulEl.innerHTML = '';
 
-
-  if (string.includes('Numer')) {
-    const newString = string.slice(0, 5) + " " + string.slice(5);
-    return newString
-  } else if (string.includes('Kod')) {
-    const newString = string.slice(0, 3) + " " + string.slice(3);
-    return newString
-  } else {
-    return string;
-  }
-};
-
-function resetErrors(ulEl) {
-  ulEl.innerHTML = "";
-  errors = [];
+    if (errors.length === 0) {
+      alert('Dane zostały wypełnione prawidłowo!');
+      fields.forEach(function (e) {
+        formEl.elements[e.name].value = '';
+      });
+    } else {
+      errors.forEach(function (text) {
+        const liEl = document.createElement('li');
+        liEl.innerText = text;
+        ulEl.appendChild(liEl);
+      });
+    };
+  };
 };

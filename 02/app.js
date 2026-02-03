@@ -18,8 +18,8 @@ function handleValidation(errors) {
   const termsEl = formEl.elements['accept'];
 
   const isEmailVal = isEmail(loginInputEl.value);
-  const isPassVal = validatePass(passwordFirstEl.value, passwordSecondEl.value);
-  const isAcceptVal = isChecked(termsEl.checked);
+  const isPassVal = validatePass(passwordFirstEl.value, passwordSecondEl.value, 6);
+  const isAcceptVal = isBool(termsEl.checked);
 
   if (!isEmailVal) {
     errors.push(loginInputEl);
@@ -63,15 +63,15 @@ function isEmail(text) {
   };
 };
 
-function validatePass(pass1, pass2) {
-  if (pass1 === pass2 && pass1.length >= 6 && pass1.length > 0) {
+function validatePass(pass1, pass2, length) {
+  if (pass1 === pass2 && pass1.length >= length && pass1.length > 0) {
     return true;
   } else {
     return false;
   };
 };
 
-function isChecked(checked) {
+function isBool(checked) {
   if (checked) {
     return true;
   } else {
